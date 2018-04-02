@@ -4,7 +4,7 @@ import { join as pathJoin } from 'path';
 import * as child_process from 'child_process';
 
 export type LambdaConfig = {
-    functionName: string,
+    functionName?: string,
     role?: string,
     handler?: string,
     description?: string,
@@ -55,7 +55,13 @@ export function validateLabmdaPackage(lambdaPackagePath: string): boolean {
     });
 }
 
-export async function bundle(lambdaPackagePath: string, outputZip: string = './build.zip'): Promise<boolean> {
+/**
+ * bundle lambda project to zip
+ * @param lambdaPackagePath path to project with `build` & `src` directories.
+ * @param outputZip output zip file path. ('./build.zip' by default)
+ * @param opts additional config
+ */
+export async function bundle(lambdaPackagePath: string, outputZip: string = './build.zip', opts?: LambdaConfig): Promise<boolean> {
     if (!validateLabmdaPackage(lambdaPackagePath)) {
         console.log('invalid lambda directory structure');
         return false;
@@ -90,17 +96,33 @@ export async function bundle(lambdaPackagePath: string, outputZip: string = './b
     
             // Upload to AWS
             console.log('uploading to aws');
-            const params = Object.entries(lambdaConfig).filter(([ entryName ]) =>
-                ![ 'dependencies' ].includes(entryName)
-            ).map(([ entryName, entryValue ]) =>
+            const superConfig = Object.entries({ ...lambdaConfig, ...opts }).filter(([ entryName ]) => ![ 'dependencies', 'fileName' ].includes(entryName));
+
+            // filter from 'configure-function' params
+            const updateFunctionConfig = superConfig.filter(([ entryName ]) =>
+                [ 'functionName', 'revisionId' ].includes(entryName)
+            );
+            
+            const updateFunctionParams = updateFunctionConfig.map(([ entryName, entryValue ]) =>
                 `--${(entryName in lambdaConfigMapping) ? (lambdaConfigMapping as any)[entryName] : entryName} ${entryValue}`
             ).join(' ');
 
-            const execCmd = `aws lambda update-function-code --zip-file fileb://${zipPathDst.replace(/\\/g, '/')} ${params}`;
+            const execCmd = `aws lambda update-function-code --zip-file fileb://${zipPathDst.replace(/\\/g, '/')} ${updateFunctionParams}`;
             console.log(`exec: ${execCmd}`);
-
             const uploadAwsOut = child_process.execSync(execCmd);
             console.log(uploadAwsOut.toString());
+
+            // if super config has smth other than [ 'functionName', 'revisionId' ], it is also configure-function
+            if (superConfig.length > 2) {
+                console.log('configure lambda function');
+                const configureFunctionParams = superConfig.map(([ entryName, entryValue ]) =>
+                    `--${(entryName in lambdaConfigMapping) ? (lambdaConfigMapping as any)[entryName] : entryName} ${entryValue}`
+                ).join(' ');
+                const execCmd = `aws lambda update-function-configuration ${configureFunctionParams}`;
+                console.log(`exec: ${execCmd}`);
+                const uploadAwsOut = child_process.execSync(execCmd);
+                console.log(uploadAwsOut.toString());
+            }
 
             resolve(true);
         });

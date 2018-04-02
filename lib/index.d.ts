@@ -1,5 +1,5 @@
 export declare type LambdaConfig = {
-    functionName: string;
+    functionName?: string;
     role?: string;
     handler?: string;
     description?: string;
@@ -17,4 +17,10 @@ export declare type LambdaConfig = {
     };
 };
 export declare function validateLabmdaPackage(lambdaPackagePath: string): boolean;
-export declare function bundle(lambdaPackagePath: string, outputZip?: string): Promise<boolean>;
+/**
+ * bundle lambda project to zip
+ * @param lambdaPackagePath path to project with `build` & `src` directories.
+ * @param outputZip output zip file path. ('./build.zip' by default)
+ * @param opts additional config
+ */
+export declare function bundle(lambdaPackagePath: string, outputZip?: string, opts?: LambdaConfig): Promise<boolean>;

@@ -105,11 +105,14 @@ Then `aws-lambda-deploy-js` bundle to zip file `build` directory and call `aws c
 ### Bundle
 
 ```js
-bundle(lambdaPackagePath: string, outputZip: string = './build.zip'): Promise<boolean>
+bundle(lambdaPackagePath: string, outputZip: string = './build.zip', opts?: LambdaConfig): Promise<boolean>
 ```
 
 * `lambdaPackagePath` - path to bundling module root directory.
 * `outputZip` - path to output.
+* `opts` - additional config.
+
+If config will have smth other than `functionName` or `revisionId`, `aws update-function-configuration` will be called.
 
 </details>
 
@@ -144,5 +147,11 @@ bundle(lambdaPackagePath: string, outputZip: string = './build.zip'): Promise<bo
     dependencies?: { [depName: string]: string }
 }
 ```
+
+If config will have smth other than `functionName` or `revisionId`, `aws update-function-configuration` will be called.
+
+[update function code reference](https://docs.aws.amazon.com/cli/latest/reference/lambda/update-function-code.html)
+
+[update function configuration reference](https://docs.aws.amazon.com/cli/latest/reference/lambda/update-function-configuration.html)
 
 </details>
