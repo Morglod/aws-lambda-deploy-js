@@ -21,7 +21,7 @@ src
 package.json
 ```
 
-### Configure AWS cli
+### Configure AWS CLI
 [en](https://aws.amazon.com/en/cli/) [ru](https://aws.amazon.com/ru/cli/) guide
 
 ### Install tool
