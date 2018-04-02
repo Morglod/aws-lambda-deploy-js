@@ -1,0 +1,25 @@
+{
+  "name": "aws-lambda-deploy-tool",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib\\index.js",
+  "types": "lib\\index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "deploy"
+  ],
+  "author": "morglod",
+  "license": "MIT",
+  "dependencies": {
+    "archiver": "^2.1.1"
+  },
+  "devDependencies": {
+    "@types/archiver": "^2.1.1",
+    "@types/node": "^9.6.1",
+    "typescript": "^2.8.1"
+  }
+}
